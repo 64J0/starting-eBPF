@@ -32,9 +32,15 @@ reference]] from [[https://github.com/aquasecurity/tracee][aquasecurity/tracee]]
 To start the server, you can do:
 
 #+BEGIN_SRC bash :tangle no
+  # start the vm
   vagrant up
 
+  # connect to the vm through ssh
   vagrant ssh
 
-  # run other commands
+  # stop the vm
+  vagrant halt
+
+  # restart the vm
+  vagrant up
 #+END_SRC
