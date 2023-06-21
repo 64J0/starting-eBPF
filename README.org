@@ -22,3 +22,19 @@ Just a few of the things you can do with eBPF include:
 + Performance tracing of pretty much any aspect of a system.
 + High-performance networking, with built-in visibility.
 + Detecting and (optionally) preventing malicious activity.
+
+* Vagrant
+
+As you can notice by checking this repository, I added a Vagrantfile to make it
+easier to create a VM for testing purposes. This Vagrantfile is based on [[https://aquasecurity.github.io/tracee/v0.9/tutorials/setup-development-machine-with-vagrant/][this
+reference]] from [[https://github.com/aquasecurity/tracee][aquasecurity/tracee]].
+
+To start the server, you can do:
+
+#+BEGIN_SRC bash :tangle no
+  vagrant up
+
+  vagrant ssh
+
+  # run other commands
+#+END_SRC
