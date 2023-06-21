@@ -1,0 +1,24 @@
+#+TITLE: Starting eBPF
+#+AUTHOR: 64J0
+
+This repository is used to keep track of the programs I write while starting to
+learn about eBPF (Extended Berkeley Packet Filter) technology.
+
+The main reference for this journey is the book [[https://github.com/lizrice/learning-ebpf][Learning eBPF]] from Liz Rice.
+
+* What is eBPF?
+
+eBPF is a revolutionary kernel technology that allows developers to write custom
+code that can be loaded into the kernel dynamically, changing the way the kernel
+behaves.
+
+This tool provides us the flexibility to build bespoke tools or customized
+policies. eBPF-based tools can observe any event across the kernel, and hence
+across all applications running on a (virtual) machine, whether they are
+containerized or not.
+
+Just a few of the things you can do with eBPF include:
+
++ Performance tracing of pretty much any aspect of a system.
++ High-performance networking, with built-in visibility.
++ Detecting and (optionally) preventing malicious activity.
