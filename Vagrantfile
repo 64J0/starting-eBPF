@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
     vb.name = "starting-ebpf"
   end
 
-  config.vm.provision "shell", privileged: true, inline: <<-SHELL
+  config.vm.provision "shell", inline: <<-SHELL
     VAGRANT_HOME="/home/vagrant"
     DEBIAN_FRONTEND="noninteractive"
 
