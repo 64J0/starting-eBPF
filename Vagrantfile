@@ -55,7 +55,7 @@ Vagrant.configure("2") do |config|
     apt-get install -y clang llvm
     apt-get install -y libelf-dev libpcap-dev libbfd-dev binutils-dev
     apt-get install -y build-essential make
-    apt-get install -y linux-tools-common linux-tools-5.15.0-41-generic
+    apt-get install -y linux-tools-common linux-tools-$(uname -r)
     apt-get install -y bpfcc-tools linux-headers-$(uname -r)
     apt-get install -y python3-pip
   SHELL
