@@ -44,41 +44,19 @@ Vagrant.configure("2") do |config|
     vb.name = "starting-ebpf"
   end
 
+  # Based on:
+  # https://github.com/lizrice/learning-ebpf/blob/main/learning-ebpf.yaml
   config.vm.provision "shell", inline: <<-SHELL
     VAGRANT_HOME="/home/vagrant"
     DEBIAN_FRONTEND="noninteractive"
 
-    apt update
-
-    #
-    # build environment for tracee
-    #
-
-    apt install --yes \
-        bsdutils \
-        build-essential \
-        pkgconf \
-        llvm-12 clang-12 \
-        clang-format-12
-
-    for tool in "clang" "llc" "llvm-strip"
-    do
-      path=$(which $tool-12)
-      ln -s "$path" "${path%-*}"
-    done
-
-    apt install --yes \
-        zlib1g-dev libelf-dev \
-        protobuf-compiler \
-        linux-tools-"$(uname -r)"
-
-    #
-    # iovisor/bcc
-    # https://github.com/iovisor/bcc/blob/master/INSTALL.md#ubuntu---binary
-    #
-
-    apt install --yes \
-        bpfcc-tools \
-        linux-headers-$(uname -r)
+    apt-get update
+    apt-get install -y apt-transport-https ca-certificates curl jq
+    apt-get install -y clang llvm
+    apt-get install -y libelf-dev libpcap-dev libbfd-dev binutils-dev
+    apt-get install -y build-essential make
+    apt-get install -y linux-tools-common linux-tools-5.15.0-41-generic
+    apt-get install -y bpfcc-tools linux-headers-$(uname -r)
+    apt-get install -y python3-pip
   SHELL
 end
