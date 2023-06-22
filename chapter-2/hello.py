@@ -11,12 +11,8 @@
 
 from bcc import BPF
 
-program = r"""
-int hello(void *ctx) {
-    bpf_trace_printk("Hello World!");
-    return 0;
-}
-"""
+f = open("hello.c", "r")
+program = f.read()
 
 b = BPF(text=program)
 # execve is the syscall used to execute a program
