@@ -24,7 +24,8 @@ Just a few of the things you can do with eBPF include:
 + Detecting and (optionally) preventing malicious activity.
 
 #+BEGIN_QUOTE
-[!IMPORTANT] Because eBPF is continually evolving, the features available to you
+[!IMPORTANT]
+Because eBPF is continually evolving, the features available to you
 depend on the kernel version you're running.
 #+END_QUOTE
 
