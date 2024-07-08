@@ -1,10 +1,11 @@
 #+TITLE: Starting eBPF
-#+AUTHOR: 64J0
+#+AUTHOR: 64J0<https://github.com/64J0>
 
 This repository is used to keep track of the programs I write while starting to
 learn about eBPF (Extended Berkeley Packet Filter) technology.
 
-The main reference for this journey is the book [[https://github.com/lizrice/learning-ebpf][Learning eBPF]] from Liz Rice.
+The main reference for this journey is the book [[https://github.com/lizrice/learning-ebpf][Learning eBPF]] from Liz Rice,
+leveraging this book's exercises and examples.
 
 ** What is eBPF?
 
@@ -19,15 +20,27 @@ containerized or not.
 
 Just a few of the things you can do with eBPF include:
 
-+ Performance tracing of pretty much any aspect of a system.
-+ High-performance networking, with built-in visibility.
++ Performance tracing of pretty much any aspect of a system;
++ High-performance networking, with built-in visibility;
 + Detecting and (optionally) preventing malicious activity.
 
 #+BEGIN_QUOTE
 [!IMPORTANT]
-Because eBPF is continually evolving, the features available to you
-depend on the kernel version you're running.
+Because eBPF is continually evolving, the features available to you depend on
+the kernel version you're running.
 #+END_QUOTE
+
+*** eBPF safety
+
+Since eBPF programs can be loaded into and removed from the kernel dynamically,
+and a kernel code crash can potentially take down the machine and everything
+running on it, it's important to have some guarantee that the code we're using
+is correct to some extent.
+
+With this in mind, the ~eBPF verifier~ was created. The ~eBPF verifier~ is the
+tool that ensure that an eBPF program is loaded only if it's safe to run - it
+won't crash the machine, or lock it up in a hard loop, and it won't allow data
+to be compromised.
 
 ** Vagrant
 
