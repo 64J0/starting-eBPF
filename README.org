@@ -72,7 +72,9 @@ To start the server, you can do:
   vagrant up
 #+END_SRC
 
-** bpf/bpf_helpers.h installation
+** Helpers
+
+**** bpf/bpf_helpers.h installation
 
 I found the solution to this problem at this StackOverflow answer: [[https://stackoverflow.com/a/55438649][link]].
 
@@ -88,4 +90,21 @@ manager:
 
   # verify that it was installed
   # check /usr/include/bpf/bpf_helpers.h
+#+END_SRC
+
+**** bpftool not found for kernel ...
+
+If this messages appears to you when trying to use the ~bpftool~ command, you
+can simply install it from the source, as explained at this comment: [[https://github.com/lizrice/lb-from-scratch/issues/1#issuecomment-1537098872][link]].
+
+#+BEGIN_SRC bash
+  rm /usr/sbin/bpftool
+
+  apt update && apt install -y git
+  cd / && git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+
+  cd bpftool/src
+  make install
+
+  ln -s /usr/local/sbin/bpftool /usr/sbin/bpftool
 #+END_SRC
