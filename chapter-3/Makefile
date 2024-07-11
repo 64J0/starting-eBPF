@@ -5,11 +5,14 @@ all: $(TARGETS)
 
 $(TARGETS): %: %.bpf.o 
 
+# example usage:
+# make hello
+# make hello-func
 %.bpf.o: %.bpf.c
 	clang \
 	    -target bpf \
-		-I/usr/include/$(shell uname -m)-linux-gnu \
-		-g \
+	    -I/usr/include/$(shell uname -m)-linux-gnu \
+	    -g \
 	    -O2 -o $@ -c $<
 
 clean: 
