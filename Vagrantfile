@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
-    vb.cpus = "2"
+    vb.cpus = "1"
     vb.memory = "2048"
     vb.name = "starting-ebpf"
   end
@@ -58,5 +58,13 @@ Vagrant.configure("2") do |config|
     apt-get install -y linux-tools-common linux-tools-$(uname -r)
     apt-get install -y bpfcc-tools linux-headers-$(uname -r)
     apt-get install -y python3-pip
+    apt-get install -y libbpf-dev git
+
+    # https://github.com/lizrice/lb-from-scratch/issues/1#issuecomment-1537098872
+    rm /usr/sbin/bpftool
+    cd / && git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+    cd bpftool/src
+    make install
+    ln -s /usr/local/sbin/bpftool /usr/sbin/bpftool
   SHELL
 end
