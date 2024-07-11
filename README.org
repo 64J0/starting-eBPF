@@ -71,3 +71,21 @@ To start the server, you can do:
   # restart the vm
   vagrant up
 #+END_SRC
+
+** bpf/bpf_helpers.h installation
+
+I found the solution to this problem at this StackOverflow answer: [[https://stackoverflow.com/a/55438649][link]].
+
+Basically, if you're using a Linux distribution that uses apt as the package
+manager:
+
+#+BEGIN_SRC bash
+  # update packages list
+  sudo apt update
+
+  # install libbpf-dev
+  sudo apt install libbpf-dev
+
+  # verify that it was installed
+  # check /usr/include/bpf/bpf_helpers.h
+#+END_SRC
