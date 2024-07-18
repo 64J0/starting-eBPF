@@ -1,5 +1,5 @@
 #+TITLE: Chapter 3 notes
-#+DATE [2024-07-17 qua]
+#+DATE: [2024-07-17 qua]
 
 eBPF program journey:
 
