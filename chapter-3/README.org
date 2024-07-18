@@ -1,0 +1,203 @@
+#+TITLE: Chapter 3 notes
+#+DATE [2024-07-17 qua]
+
+eBPF program journey:
+
+[ (Limited) C* ] ---> [ eBPF bytecode ] ---> [ Machine code ]
+
+*could be other languages as well, like C++, Rust or Go. Reference to the eBPF
+libraries: [[https://ebpf.io/infrastructure/#ebpf-libraries][link]].
+
+** eBPF Virtual Machine
+
+The eBPF virtual machine is responsible for converting the eBPF bytecode
+instructions to native machine instructions that run on the CPU. For higher
+performance, eBPF programs are generally JIT-compiled when loading the
+program. The alternative is to interpret the eBPF bytecode at runtime.
+
+eBPF bytecode consists of a set of instructions, and those instructions act on
+(virtual) eBPF registers. The eBPF virtual machine uses 10 general-purpose
+registers, numbered from 0 to 9. As a BPF program is executed, values get stored
+in these registers to keep track of state.
+
++ Register 0 (BPF_REG_0): The return value from the function.
++ Register 1 .. 5 (BPF_REG_ 1 .. 5): Before calling a function from eBPF code,
+  the arguments are placed here, although fewer can be used if there are less
+  than five arguments.
++ Register 10: Stack frame pointer that can only be read, but not written.
+
+eBPF instructions are represented by a structure called ~bpf_insn~:
+
+#+BEGIN_SRC c
+  struct bpf_insn {
+    __u8 code;      // opcode
+    __u8 dst_reg:4; // dest register
+    __u8 src_reg:4; // source register
+    __s16 off;      // signed offset
+    __s32 imm;      // signed immediate constant
+  }
+#+END_SRC
+
+When loaded into the kernel, the bytecode of an eBPF program is represented by a
+series of these ~bpf_insn~ structures. The verifier (which will be covered in
+chapter 6) performs several checks on this information to ensure that the code
+is safe to run.
+
+** Programs
+
+For compilation, this book uses the Clang compiler from the LLVM project.
+
++ [[file:hello.bpf.c][hellp.bpf.c]]: Writes a line of trace when triggered by the arrival of a network
+  packet on a network interface.
+
+  It can inspect and modify the contents of packets, making a decision (or
+  verdict) on what the kernel should do. The verdict could tell the kernel to
+  carry on processing as usual, drop, or redirect elsewhere. In this example, it
+  just carries on processing as usual.
+
+  This is an eXpress Data Path (XDP) type of eBPF program. It attaches to the
+  XDP hook point on a network interface. You can think of the XDP event being
+  triggered the moment a network packet arrives inbound on a (physical or
+  virtual) network interface.
+
+  Some network cards support offloading XDP programs so that they can be
+  executed on the network card itself. This means each network packet that
+  arrives can be processed on the card, before it gets anywhere near the
+  machine's CPU. XDP programs are useful for things like DDoS protection,
+  firewalling, or load balancing in a highly performant way.
+
+  Compilation:
+
+  #+BEGIN_SRC bash
+    make hello
+    # generates hello.bpf.o
+  #+END_SRC
+
+*** Inspecting the eBPF Object File
+
+#+BEGIN_SRC bash
+  # determine the contents of a file:
+  file <file-name>.bpf.o
+
+  # inspect the eBPF instructions
+  llvm-objdump -S <file-name>.bpf.o
+#+END_SRC
+
+*** Loading into the Kernel
+
+#+BEGIN_SRC bash
+  # loads the eBPF program and pins to some location
+  # example:
+  # /sys/fs/bpf/hello
+  sudo bpftool prog load <file-name>.bpf.o /sys/fs/bpf/<name>
+
+  # confirm that it worked with ls:
+  sudo ls /sys/fs/bpf
+#+END_SRC
+
+*** Inspecting the loaded program
+
+#+BEGIN_SRC bash
+  bpftool prog list
+  # the first number is the program id
+
+  # after locating our custom program we can get a prettified JSON
+  # result format so that the field names are visible, as well as
+  # the values:
+  bpftool prog show id <id> --pretty
+#+END_SRC
+
+*** The translated bytecode
+
+#+BEGIN_SRC bash
+  bpftool prog dump xlated name <program-name>
+  # example:
+  # bpftool prog dump xlated name hello
+#+END_SRC
+
+*** Attaching to an event
+
+#+BEGIN_QUOTE
+[!IMPORTANT]
+The program type has to match the type of event it's being attached to.
+#+END_QUOTE
+
+In this case, it's a XDP program, which can be attached to the XDP event on a
+network interface:
+
+#+BEGIN_SRC bash
+  # or eth0, if you have it
+  # check your network interfaces with ip link show
+  bpftool net attach xdp id <id> dev lo
+
+  # inspect the network-attached eBPF programs:
+  bpftool net list
+
+  # check the traces
+  cat /sys/kernel/debug/tracing/trace_pipe
+  # or
+  bpftool prog tracelog
+#+END_SRC
+
+*** Inspect eBPF maps
+
+An eBPF map is a data structure that can be accessed from an eBPF program
+(kernel space) or from user space. Because of its characteristics, eBPF maps can
+be used to store global variables (bss section).
+
+Other than global variables, eBPF maps are also used to hold static data (rodata
+section).
+
+#+BEGIN_SRC bash
+  # list the maps
+  bpftool map list
+
+  # bss section in an object file compiled from a C program typically holds
+  # global variables
+  # you can inspect its contents with
+  bpftool map dump name <name>.bss
+  # example:
+  # bpftool map dump name hello.bss
+  # [{
+  #       "value": {
+  #           ".bss": [{
+  #                   "counter": 12
+  #               }
+  #           ]
+  #       }
+  #   }
+  # ]
+
+  # # inspect static
+  data map
+  bpftool map dump name <name>.rodata
+  # example
+  # bpftool map dump name hello.rodata
+  # [{
+  #       "value": {
+  #           ".rodata": [{
+  #                   "hello.____fmt": "Hello World %d"
+  #               }
+  #           ]
+  #       }
+  #   }
+  # ]
+#+END_SRC
+
+#+BEGIN_QUOTE
+[!NOTE]
+The ~-g~ flag when compiling helps a log when inspecting these maps.
+#+END_QUOTE
+
+*** Detaching and unloading the program
+
+#+BEGIN_SRC bash
+  bpftool net detach xdp dev lo
+  # confirm with
+  bpftool net list
+
+
+  rm /sys/fs/bpf/hello
+  # confirm with
+  bpftool prog show name hello
+#+END_SRC

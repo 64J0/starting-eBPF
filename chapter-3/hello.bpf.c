@@ -1,6 +1,7 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
+// global variable
 int counter = 0;
 
 SEC("xdp")
