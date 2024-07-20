@@ -1,5 +1,6 @@
 #+TITLE: Chapter 3 notes
 #+DATE: [2024-07-17 qua]
+#+startup: show2levels
 
 eBPF program journey:
 
@@ -47,7 +48,7 @@ is safe to run.
 
 For compilation, this book uses the Clang compiler from the LLVM project.
 
-+ [[file:hello.bpf.c][hellp.bpf.c]]: Writes a line of trace when triggered by the arrival of a network
++ [[file:hello.bpf.c][hello.bpf.c]]: Writes a line of trace when triggered by the arrival of a network
   packet on a network interface.
 
   It can inspect and modify the contents of packets, making a decision (or
@@ -71,6 +72,14 @@ For compilation, this book uses the Clang compiler from the LLVM project.
   #+BEGIN_SRC bash
     make hello
     # generates hello.bpf.o
+  #+END_SRC
+
++ [[file:hello-func.bpf.c][hello-func.bpf.c]]: Example showing how to call a function from within an eBPF
+  program.
+
+  #+BEGIN_SRC bash
+    make hello-func
+    # generates hello-func.bpf.o
   #+END_SRC
 
 *** Inspecting the eBPF Object File
@@ -127,7 +136,8 @@ network interface:
 
 #+BEGIN_SRC bash
   # or eth0, if you have it
-  # check your network interfaces with ip link show
+  # check your network interfaces with:
+  # ip link show
   bpftool net attach xdp id <id> dev lo
 
   # inspect the network-attached eBPF programs:
@@ -201,3 +211,47 @@ The ~-g~ flag when compiling helps a log when inspecting these maps.
   # confirm with
   bpftool prog show name hello
 #+END_SRC
+
+
+** Exercises
+
+1. It worked fine. One observation is that it was required to use sudo when
+   running that ~ip~ commands.
+
+   According to the ~man ip link~ documentation:
+
+   #+BEGIN_QUOTE
+   ip link set dev eth0 xdp obj prog.o
+
+   Attaches a XDP/BPF program to device eth0, where the program is located in
+   prog.o, section "prog" (default section). In case a XDP/BPF program is
+   already attached, throw an error.
+
+   [...]
+
+   ip link set dev eth0 xdp off
+
+   If a XDP/BPF program is attached on device eth0, detach it and effectively
+   turn off XDP for device eth0.
+   #+END_QUOTE
+
+2. After running the "Hello World" example with ~./hello.py~, I got the
+   following result:
+
+   #+BEGIN_SRC bash
+     # at the first terminal
+     ./hello.py
+
+     # ===========================
+     # in another terminal
+     bpftool prog show name hello
+     139: kprobe  name hello  tag f1db4e564ad5219a  gpl
+        loaded_at 2024-07-20T02:56:47+0000  uid 0
+        xlated 104B  jited 68B  memlock 4096B
+        btf_id 87
+        pids hello.py(6541)
+   #+END_SRC
+
+3.
+
+4.
