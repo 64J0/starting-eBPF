@@ -1,0 +1,52 @@
+#+TITLE: Chapter 4 notes
+#+DATE: [2024-07-21 dom]
+
+** System calls
+
+When user space applications want the kernel to do something on their behalf,
+they make requests using the system call API. But these application don't rely
+solely on this mechanism to operate, they have their own code executed
+respecting the user space limitations.
+
+** bpf system call
+
+The ~bpf()~ manpage tells us that this command is used to "perform a command on
+an extended BPF map or program", and it's called via system calls by the user
+space program to talk to the kernel counterpart.
+
+At the kernel level, eBPF programs use *helper functions* to read and write to
+maps.
+
+Its signature is:
+
+#+BEGIN_SRC c
+  int bpf(int cmd, union bpf_attr *attr, unsigned int size);
+#+END_SRC
+
++ ~cmd~: specifies which command to perform (load eBPF programs, create maps,
+  attach programs to events, and access the key-value pairs in a map, for
+  example).
++ ~attr~: holds whatever data is needed to specify the parameters for the ~cmd~.
++ ~size~: indicates how many bytes of data there are in ~attr~.
+
+One can use the ~strace~ tool to collect the syscalls made by the execution of a
+program, and we can even filter to get only the ~bpf~ syscalls with:
+
+#+BEGIN_SRC bash
+  strace -e bpf ./hello-buffer-config.py
+#+END_SRC
+  
+** BTF
+
+BTF stands for BPF Type Format and it allows eBPF programs to be portable across
+different kernel versions so that you can compile a program on one machine and
+use it on another, which might be using a different kernel version and hence
+have different kernel data structures.
+
+** BPF_PROG_LOAD
+
++ ~prog_type~: describes the program type;
++ ~insn_cnt~: means "instruction count". It's the number of bytecode
+  instructions in the program;
++ ~insns~: the memory address with the bytecode instructions that make up the
+  eBPF program;
