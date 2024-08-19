@@ -66,6 +66,8 @@ To start the server, you can do:
   # =====================
   # stop the vm
   vagrant halt
+  # if you want to destroy the VM completely
+  # vagrant destroy
 
   # =====================
   # restart the vm
