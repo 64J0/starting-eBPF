@@ -1,0 +1,47 @@
+#+TITLE: Chapter 5 notes
+#+DATE: [2024-08-17 sáb]
+
+This chapter discusses why BTF (BPF Type Format) exists and how it's used to
+make eBPF programs portable across different versions of the kernel.
+
+** CO-RE: Compile once, run everywhere.
+
+The CO-RE feature makes eBPF program portable across different kernel
+versions. It allows eBPF programs to include information about the data
+structure layouts they were compiled with, and it provides a mechanism for
+adjusting how fields are accessed if the data structure layout is different on
+the target machine where they run.
+
+** BTF: BPF Type Format.
+
+BTF information describes how data structures and code are laid out in memory.
+
+Some BTF use cases:
+
+1. Knowing how a structure is laid out and the type of every field makes it
+   possible to pretty-print a structure's content in human-readable format;
+2. Includes the line and function information that enables bpftool to interleave
+   source code within the output from translated or JITed program dumps;
+3. Used for BPF spin locks, which prevent two CPU cores from simultaneously
+   accessing the same map values.
+
+**** List BTF information with bpftool
+
+#+BEGIN_SRC bash
+  sudo bpftool btf list
+
+  # knowing the ID of the BTF information, you can inspect its contents with
+  sudo bpftool btf dump id <id>
+#+END_SRC
+
+**** Generate the vmlinux.h header file
+
+If you're writing an eBPF program that refers to any kernel data structures or
+types, the easiest option is to include the ~vmlinux.h~ file.
+
+#+BEGIN_SRC bash
+  sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
+#+END_SRC
+
+** Compiling eBPF programs for CO-RE
+
