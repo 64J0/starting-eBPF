@@ -1,0 +1,6 @@
+#+TITLE: Chapter 6 notes
+#+DATE: [2024-08-19 seg]
+
+The eBPF verification involves checking every possible execution path through
+the program - eBPF bytecode which depends on the output from the compiler - and
+ensuring that every instruction is safe.
